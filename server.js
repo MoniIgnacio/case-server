@@ -14,6 +14,7 @@ const conn = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '',
+  database: 'case'
 });
  
 //connect to database
@@ -24,14 +25,21 @@ conn.connect((err) =>{
  
  
 //add new user
-app.post('/store-data',(req, res) => {
-  let data = {name: req.body.name};
-  let sql = "INSERT INTO users SET ?";
-  let query = conn.query(sql, data,(err, results) => {
-    if(err) throw err;
-    res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+app.post('/users', (req, res) => {
+    const { username, password } = req.body;
+  
+    const query = `INSERT INTO users (username, password) VALUES ('${username}', '${password}')`;
+  
+    conn.query(query, (err, result) => {
+      if (err) {
+        console.error('Error executing query: ', err);
+        res.status(500).send('Error creating user');
+        return;
+      }
+  
+      res.send('User created successfully!');
+    });
   });
-});
  
 app.listen(3000, () => {
   console.log("Server running successfully on 3000");
