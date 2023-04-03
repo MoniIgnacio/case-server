@@ -1,4 +1,6 @@
 const conn = require("../db/index.js");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 exports.getAllUsers = async (req, res) => {
   const query = `SELECT * FROM users`;
@@ -51,15 +53,81 @@ exports.createUser = async (req, res) => {
     return;
   }
 
-  const query = `INSERT INTO users (email, password) VALUES ('${email}', '${password}')`;
+  try {
+    // Generate validate password
+    // const salt = await bcrypt.genSalt(12);
+    // const hashPassword = await bcrypt.hash(password, salt);
 
-  conn.query(query, (err, result) => {
-    if (err) {
-      console.error("Error executing query: ", err);
-      res.status(500).send("Error creating user");
-      return;
-    }
+    //check that the email hast not been used
+    const preQuery = `SELECT * FROM users WHERE email='${email}'`;
+    const query = `INSERT INTO users (email, password) VALUES ('${email}', '${password}')`;
 
-    res.send("User created successfully!");
-  });
+    conn.query(preQuery, (_, result) => {
+      if (result.length !== 0) {
+        res.status(400).json({ errorMessage: "That e-mail is already in use" });
+      } else {
+        conn.query(query, (_, result) => {
+          res.status(200).json("User created successfully!");
+        });
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  //BE validations
+  //All fields are filled
+  if (email === "" || password === "") {
+    res.status(400).json({ errorMessage: "Invalid credentials" });
+    return;
+  }
+
+  try {
+    //User exists
+    const preQuery = `SELECT * FROM users WHERE email='${email}'`;
+
+    conn.query(preQuery, async (_, result) => {
+      if (result.length === 0) {
+        res.status(400).json({ errorMessage: "Invalid credentials" });
+        return;
+      }
+
+      try {
+        //Correct password
+        let passwordFounded = result[0].password;
+        // const isPasswordValid = await bcrypt.compare(password, passwordFounded);
+        // console.log(isPasswordValid)
+        // if (isPasswordValid === false) {
+        if (password !== passwordFounded) {
+          res.status(400).json({ errorMessage: "Invalid credentials" });
+          return;
+        }
+
+        // Token creation and send it to client
+        const payload = {
+          _id: result[0].id,
+          email: result.email,
+        };
+
+        const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+          algorithm: "HS256",
+          expiresIn: "3h",
+        });
+        // send the token to the client
+        res.status(200).json({ authToken: authToken });
+      } catch (error) {
+        next(error);
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.verifyUser = async (req, res) => {
+  res.status(200).json({ user: req.payload });
 };

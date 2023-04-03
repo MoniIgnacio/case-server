@@ -1,5 +1,3 @@
-const bodyParser = require('body-parser');
-const cors = require("cors");
 const mysql = require("mysql");
 
 //create database connection
