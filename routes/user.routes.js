@@ -1,22 +1,12 @@
 const router = require("express").Router();
-const conn = require("../db/index.js");
+const userController = require("../controllers/userController");
 
-// POST '/user/' => Create a new user
-router.post('/', (req, res) => {
-    const { username, password } = req.body;
-  
-    const query = `INSERT INTO users (username, password) VALUES ('${username}', '${password}')`;
-  
-    conn.query(query, (err, result) => {
-      if (err) {
-        console.error('Error executing query: ', err);
-        res.status(500).send('Error creating user');
-        return;
-      }
-  
-      res.send('User created successfully!');
-    });
-  });
+// GET '/user' => Get all users
+router.get("/", userController.getAllUsers);
 
+// POST '/user/create' => Create a new user
+router.post("/create", userController.createUser);
 
+// `DELETE FROM users WHERE id='${id}';`
+// `SELECT * FROM users ORDER BY username;`
 module.exports = router;
