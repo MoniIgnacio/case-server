@@ -63,13 +63,13 @@ exports.createUser = async (req, res) => {
     const query = `INSERT INTO users (email, password) VALUES ('${email}', '${password}')`;
 
     conn.query(preQuery, (_, result) => {
-      if (result.length !== 0) {
-        res.status(400).json({ errorMessage: "That e-mail is already in use" });
-      } else {
-        conn.query(query, (_, result) => {
-          res.status(200).json("User created successfully!");
-        });
-      }
+      result.length !== 0
+        ? res
+            .status(400)
+            .json({ errorMessage: "That e-mail is already in use" })
+        : conn.query(query, (_, result) => {
+            res.status(200).json("User created successfully!");
+          });
     });
   } catch (error) {
     next(error);
@@ -110,7 +110,7 @@ exports.loginUser = async (req, res) => {
         // Token creation and send it to client
         const payload = {
           _id: result[0].id,
-          email: result.email,
+          email: result[0].email,
         };
 
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {

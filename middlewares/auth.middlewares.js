@@ -15,11 +15,11 @@ const isAuthenticated = jwt({
     const token = tokenArr[1];
 
     if (tokenType !== "Bearer") {
-      console.log("Tipo de token incorrecto");
+      console.log("Incorrect token");
       return null;
     }
 
-    console.log("Token entregado");
+    console.log("Delivered token");
     return token;
   },
 });
