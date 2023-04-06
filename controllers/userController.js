@@ -2,13 +2,19 @@ const conn = require("../db/index.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-exports.getAllUsers = async (req, res) => {
-  const query = `SELECT * FROM users`;
+exports.getUser = async (req, res) => {
+  const { userEmail } = req.params;
+  if (userEmail === ":userEmail") {
+    res.status(400).json({ errorMessage: "The fields need to be filled" });
+    return;
+  }
+
+  const query = `SELECT email, id FROM users WHERE email='${userEmail}';`;
 
   conn.query(query, (err, result) => {
     if (err) {
       console.error("Error executing query: ", err);
-      res.status(500).send("Error getting users");
+      res.status(500).send("Error getting user");
       return;
     }
 
