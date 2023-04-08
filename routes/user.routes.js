@@ -2,7 +2,7 @@ const router = require("express").Router();
 const userController = require("../controllers/userController");
 const { isAuthenticated } = require("../middlewares/auth.middlewares");
 
-// GET '/user' => Get all users
+// GET '/user/:userEmail' => Get especific user
 router.get("/:userEmail", userController.getUser);
 
 // POST '/user/create' => Create a new user
@@ -12,7 +12,7 @@ router.post("/create", userController.createUser);
 router.post('/login', userController.loginUser);
 
 // GET '/user/verify' => Send to Front End the verification of the token
-router.get('/verify', isAuthenticated, userController.verifyUser);
+router.get('/auth/verify', isAuthenticated, userController.verifyUser);
 
 // `DELETE FROM users WHERE id='${id}';` --> PENDING
 module.exports = router;

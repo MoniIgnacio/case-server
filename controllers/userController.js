@@ -9,7 +9,7 @@ exports.getUser = async (req, res) => {
     return;
   }
 
-  const query = `SELECT email, id FROM users WHERE email='${userEmail}';`;
+  const query = `SELECT email, id FROM users WHERE email LIKE '${userEmail}%';`;
 
   conn.query(query, (err, result) => {
     if (err) {
@@ -22,7 +22,7 @@ exports.getUser = async (req, res) => {
   });
 };
 
-exports.createUser = async (req, res) => {
+exports.createUser = async (req, res, next) => {
   const { email, password, passwordSecure } = req.body;
 
   if (email === "" || password === "" || passwordSecure === "") {
@@ -82,7 +82,7 @@ exports.createUser = async (req, res) => {
   }
 };
 
-exports.loginUser = async (req, res) => {
+exports.loginUser = async (req, res, next) => {
   const { email, password } = req.body;
 
   //BE validations
